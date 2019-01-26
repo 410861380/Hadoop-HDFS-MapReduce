@@ -1,26 +1,24 @@
-package FlowCountTestMapper;
+package com.tiger.FlowBean;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.WritableComparable;
 
-public class FlowBean implements Writable{
-	//定义属性
+public class FlowBean implements WritableComparable<FlowBean>{
 	private long upFlow;
-	private long dfFlow;
-	private long flowSum;
-	public FlowBean() {}
+	private long dwFlow;
+	private long sum;
 	
-	//流量累加
-	public FlowBean(long upFlow, long dfFlow) {
+	public FlowBean() {}
+
+	public FlowBean(long upFlow, long dwFlow) {
 		this.upFlow = upFlow;
-		this.dfFlow = dfFlow;
-		this.flowSum = upFlow + dfFlow;
+		this.dwFlow = dwFlow;
+		sum=upFlow+dwFlow;
 	}
 	
-
 	public long getUpFlow() {
 		return upFlow;
 	}
@@ -29,36 +27,44 @@ public class FlowBean implements Writable{
 		this.upFlow = upFlow;
 	}
 
-	public long getDfFlow() {
-		return dfFlow;
+	public long getDwFlow() {
+		return dwFlow;
 	}
 
-	public void setDfFlow(long dfFlow) {
-		this.dfFlow = dfFlow;
+	public void setDwFlow(long dwFlow) {
+		this.dwFlow = dwFlow;
 	}
 
-	public long getFlowsum() {
-		return flowSum;
+	public long getSum() {
+		return sum;
 	}
 
-	public void setFlowsum(long flowsum) {
-		this.flowSum = flowsum;
+	public void setSum(long sum) {
+		this.sum = sum;
+	}
+
+	@Override//序列化
+	public void write(DataOutput out) throws IOException {
+		out.writeLong(upFlow);
+		out.writeLong(dwFlow);
+		out.writeLong(sum);
+	}
+
+	@Override//反序列化
+	public void readFields(DataInput in) throws IOException {
+		upFlow=in.readLong();
+		dwFlow=in.readLong();
+		sum=in.readLong();
+		
 	}
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
-		return upFlow +"\t"+dfFlow+"\t"+flowSum;
+		
+		return upFlow +"\t"+dwFlow+"\t"+sum;
 	}
-	@Override
-	public void write(DataOutput out) throws IOException {
-		out.writeLong(upFlow);
-		out.writeLong(dfFlow);
-		out.writeLong(flowSum);	
+	@Override//排序
+	public int compareTo(FlowBean o) {
+		return this.sum>o.getSum()?1:-1;
 	}
-	@Override
-	public void readFields(DataInput in) throws IOException {
-		upFlow = in.readLong();
-		dfFlow = in.readLong();
-		flowSum = in.readLong();	
-	}
+
 }
